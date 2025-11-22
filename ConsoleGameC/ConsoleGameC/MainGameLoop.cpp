@@ -1,23 +1,30 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>//use to get input without waiting for enter
+#include <windows.h>
 
-#define MAP_SIZE 1350
-#define UNDER_MAP "\033[H\033[16B"
-#define HOME "\033[H"
-#define SPACES_TO_REACH_TOP 16//doesnt go to the top one for some reason
-#define SPACES_TO_REACH_RIGHT 31
-
+#define MAP_SIZE 1500
+#define MAP_HEIGHT 16
+#define MAP_WIDTH 35
+#define CURSOR_UNDER_MAP "\033[H\033[16B"
+#define MAP1_FILE "../../map1.txt"
+#define CURSOR_HOME "\033[H"
+#define SPACES_TO_REACH_TOP 17//doesnt go to the top one for some reason
+#define SPACES_TO_REACH_RIGHT 32
+#define WALK_SLEEP 200
+#define SPRINT_SLEEP 100
+#define W_KEY 0x57
+#define S_KEY 0x53
+#define A_KEY 0x41
+#define D_KEY 0x44
+#define P_KEY 0x50
+#define WALL_CHARACTER_LEFTRIGHT 186
 
 
 
 int main(void)
 {
-	system("chcp 65001 > nul");
-
-
 	FILE* mapFile;
-	fopen_s(&mapFile, "../../map.txt", "r");
+	fopen_s(&mapFile, MAP1_FILE, "r");
 	if (mapFile == NULL)
 	{
 		perror("ERROR");
@@ -25,63 +32,106 @@ int main(void)
 	}
 
 	char mapString[MAP_SIZE] = { 0 };
+	char tempMapString[MAP_SIZE] = { 0 };
 	fread_s(mapString, MAP_SIZE, 1, MAP_SIZE, mapFile);
-	printf("%s\n", mapString);
+	strncpy_s(tempMapString, MAP_SIZE, mapString, MAP_SIZE);
+
+
+	unsigned char mapTracker[MAP_HEIGHT][MAP_WIDTH] = { { 0 } };
+	for (int i = 0; i < MAP_HEIGHT; i++)
+	{
+		sscanf_s(tempMapString, "%[^\n]", mapTracker[i], MAP_WIDTH);
+	}
+	//printf("%s\n", mapString);
 
 	int u = 8;
 	int d = 0;//unused
 	int r = 16;
 	int l = 0;//unused
 
-	while (true)
+	bool doLoop = true;
+	int sleepSprint = 200;
+	bool skipSleep = false;
+	while (doLoop)
 	{
 		//print the map
-		printf(HOME);
-		printf("%s", mapString);
+		printf(CURSOR_HOME);
+		printf("\n%s", mapString);
 
 		//move to current position and print player
-		printf(UNDER_MAP);
+		printf(CURSOR_UNDER_MAP);
 		printf("\033[%dA\033[%dB\033[%dC\033[%dD", u, d, r, l);
 		printf("%c", 254);
 
-		//get input and print it under the map
-		char input = _getch();
-		printf(UNDER_MAP);
-		printf("%c", input);
-
-		//get movement option
-		switch (input)
+		//get input and set position
+		
+		//up
+		if (GetAsyncKeyState(W_KEY) & 0x8000)
 		{
-		case 'w'://up
 			if (u <= SPACES_TO_REACH_TOP)
 			{
 				u++;
+				skipSleep = false;
 			}
-			break;
-		case 's'://down
-			if (u > 0)
+		}
+		//down
+		if (GetAsyncKeyState(S_KEY) & 0x8000)
+		{
+			if (u > 1)
 			{
 				u--;
+				skipSleep = false;
 			}
-			break;
-		case 'a'://left
-			if (r > 0)
+		}
+		//left
+		if (GetAsyncKeyState(A_KEY) & 0x8000)
+		{
+			if (mapTracker[u][r - 2] != WALL_CHARACTER_LEFTRIGHT)
 			{
-				r--;
+				if (r > 1)
+				{
+					r--;
+					skipSleep = false;
+				}
 			}
-			break;
-		case 'd'://right
-			if (r <= SPACES_TO_REACH_RIGHT)
-			{/*
-				printf("\033[%dA\033[%dB\033[%dC\033[%dD", u, d, r + 1, l);
-				if (getc(stdin) != 219)
+		}
+		//right
+		if (GetAsyncKeyState(D_KEY) & 0x8000)
+		{
+			if (mapTracker[u][r] != WALL_CHARACTER_LEFTRIGHT)
+			{
+				if (r <= SPACES_TO_REACH_RIGHT)
 				{
 					r++;
+					skipSleep = false;
 				}
-				ungetc(219, stdin);*/
-				r++;
 			}
-			break;
 		}
-	}
+		//sprint
+		if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+		{
+			sleepSprint = SPRINT_SLEEP;
+			skipSleep = false;
+		}
+		else
+		{
+			sleepSprint = WALK_SLEEP;
+		}
+		//exit
+		if (GetAsyncKeyState(P_KEY) & 0x0001)
+		{
+			doLoop = false;
+		}
+
+
+		if (!skipSleep)
+		{
+			Sleep(sleepSprint);
+		}
+		else
+		{
+			Sleep(8);
+		}
+		skipSleep = true;
+	}//end of while loop
 }
