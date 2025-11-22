@@ -2,21 +2,30 @@
 #include <stdlib.h>
 #include <windows.h>
 
+//map measurements
 #define MAP_SIZE 1500
 #define MAP_HEIGHT 16
 #define MAP_WIDTH 35
-#define CURSOR_UNDER_MAP "\033[H\033[16B"
 #define MAP1_FILE "../../map1.txt"
-#define CURSOR_HOME "\033[H"
-#define SPACES_TO_REACH_TOP 17//doesnt go to the top one for some reason
+#define SPACES_TO_REACH_TOP 16
 #define SPACES_TO_REACH_RIGHT 32
+
+//sleep amounts
 #define WALK_SLEEP 200
 #define SPRINT_SLEEP 100
+
+//keys
 #define W_KEY 0x57
 #define S_KEY 0x53
 #define A_KEY 0x41
 #define D_KEY 0x44
 #define P_KEY 0x50
+
+//cursor strings
+#define CURSOR_UNDER_MAP "\033[H\033[17B"
+#define CURSOR_HOME "\033[H"
+
+//character codes
 #define WALL_CHARACTER_LEFTRIGHT 186
 
 
@@ -32,15 +41,13 @@ int main(void)
 	}
 
 	char mapString[MAP_SIZE] = { 0 };
-	char tempMapString[MAP_SIZE] = { 0 };
 	fread_s(mapString, MAP_SIZE, 1, MAP_SIZE, mapFile);
-	strncpy_s(tempMapString, MAP_SIZE, mapString, MAP_SIZE);
 
-
+	//use this to track where collision objects are
 	unsigned char mapTracker[MAP_HEIGHT][MAP_WIDTH] = { { 0 } };
 	for (int i = 0; i < MAP_HEIGHT; i++)
 	{
-		sscanf_s(tempMapString, "%[^\n]", mapTracker[i], MAP_WIDTH);
+		sscanf_s(mapString, "%[^\n]", mapTracker[i], MAP_WIDTH);
 	}
 	//printf("%s\n", mapString);
 
@@ -64,6 +71,8 @@ int main(void)
 		printf("%c", 254);
 
 		//get input and set position
+		//up/down is 1 indexed
+		//left/right is 0 indexed
 		
 		//up
 		if (GetAsyncKeyState(W_KEY) & 0x8000)
@@ -123,6 +132,9 @@ int main(void)
 			doLoop = false;
 		}
 
+		//debug
+		printf(CURSOR_UNDER_MAP);
+		printf("u=%d r=%d",u, d);
 
 		if (!skipSleep)
 		{
