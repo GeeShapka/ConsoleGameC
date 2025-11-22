@@ -1,0 +1,9 @@
+add a collision map file for each map.
+	import from the collision map for the collision tracker so i can support collision for any characters on
+	the main map by using only one character type on the Collision map.
+add a splash screen
+add key to press to display controls
+add an exit screen
+add npc detection
+	make it directionless, so you only need to be on an adjacent tile
+	button press to interact (e)?

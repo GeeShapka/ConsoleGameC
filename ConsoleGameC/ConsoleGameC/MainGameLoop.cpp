@@ -6,7 +6,7 @@
 #define MAP_SIZE 1500
 #define MAP_HEIGHT 16
 #define MAP_WIDTH_PLUS1 33//add extra character for \0
-#define MAP1_FILE "../../map1.txt"
+#define MAP1_FILE "Maps/map1.txt"
 #define SPACES_TO_REACH_BOTTOM 16
 #define SPACES_TO_REACH_RIGHT 32
 
