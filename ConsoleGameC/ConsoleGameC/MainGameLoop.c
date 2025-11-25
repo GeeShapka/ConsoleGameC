@@ -46,6 +46,7 @@ int MAP_SIZE = 0;
 int setMapSize(int height, int width);
 unsigned char* getMapString(const char* mapPath, size_t mapSize);
 unsigned char** getCollisionTracker(size_t height, size_t width, unsigned char* collisionMapString);
+void npcVerticalMovement(int* horisontalPosition, int* verticalPosition, bool* goDown);
 
 
 
@@ -65,11 +66,16 @@ int main(void)
 	//get the collision tracker
 	unsigned char** collisionTracker = getCollisionTracker(MAP_HEIGHT, MAP_WIDTH, getMapString(MAP1COLLISION_FILE, MAP_SIZE));
 
-	//starting position
+	//player starting position
 	int u = 0;//unused
 	int d = 8;
 	int r = 10;
 	int l = 0;//unused
+
+	//npc starting position
+	int e1d = 8;
+	int e1r = 4;
+	bool e1GoDown = true;
 
 	bool doLoop = true;
 	int sleepSprint = SPRINT_SLEEP;
@@ -90,9 +96,12 @@ int main(void)
 		printf("\033[%dA\033[%dB\033[%dC\033[%dD", u, d, r, l);
 		printf("%c", 254);
 
+		npcVerticalMovement(&e1r, &e1d, &e1GoDown);
+
+
 		//get input and set position
 		//up/down and left/right are 1 indexed
-		
+
 		//up
 		if (GetAsyncKeyState(W_KEY) & 0x8000)
 		{
@@ -161,7 +170,7 @@ int main(void)
 		{
 			printf(CURSOR_UNDER_MAP);
 			//extra space to clear old values if 1 digit
-			printf("d=%d r=%d       ",d, r);
+			printf("d=%d r=%d       ", d, r);
 		}
 		//end of debug
 
@@ -234,7 +243,7 @@ unsigned char* getMapString(const char* mapPath, size_t mapSize)
 		perror("ERROR: ");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	//return a pointer to the space where the map is
 	return(map);
 }//end of getMapString
@@ -281,3 +290,60 @@ unsigned char** getCollisionTracker(size_t height, size_t width, unsigned char* 
 
 	return(collisionTracker);
 }//end of getCollisionTracker
+
+
+
+/// <summary>
+/// moves an npc up and down
+/// </summary>
+/// <param name="horisontalPosition"></param>
+/// <param name="verticalPosition"></param>
+/// <param name="goDown"></param>
+void npcVerticalMovement(int* horisontalPosition, int* verticalPosition, bool* goDown)
+{
+	//d and r
+	char* locationString = "A\033[%dB\033[%dC";
+
+	//check to make sure r is a place on the map
+	if (*horisontalPosition < 1 || *horisontalPosition > MAP_WIDTH)
+	{
+		*horisontalPosition = 1;
+	}
+
+	//check to make sure d is a place on the map
+	if (*verticalPosition < 1 || *verticalPosition > MAP_HEIGHT)
+	{
+		*verticalPosition = 1;
+	}
+
+	if (*goDown)
+	{
+		if (*verticalPosition < MAP_HEIGHT)
+		{
+			*verticalPosition += 1;
+		}
+		else if (*verticalPosition == MAP_HEIGHT)
+		{
+			*verticalPosition -= 1;
+			*goDown = false;
+		}
+	}
+	else if (!*goDown)
+	{
+		if (*verticalPosition < MAP_HEIGHT && *verticalPosition > 1)
+		{
+			*verticalPosition -= 1;
+		}
+		else if (*verticalPosition == 1)
+		{
+			*verticalPosition += 1;
+			*goDown = true;
+		}
+	}
+
+	//print the enemy
+	printf(CURSOR_HOME);
+	printf(locationString, *verticalPosition, *horisontalPosition);
+	printf("1");
+	return;
+}
