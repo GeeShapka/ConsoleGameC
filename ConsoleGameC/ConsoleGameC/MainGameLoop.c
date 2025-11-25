@@ -96,9 +96,9 @@ int main(void)
 		//up
 		if (GetAsyncKeyState(W_KEY) & 0x8000)
 		{
-			if (collisionTracker[d - 2][r - 1] != WALL_CHARACTER_VERTICAL)
+			if (d > 1)
 			{
-				if (d > 1)
+				if (collisionTracker[d - 2][r - 1] != WALL_CHARACTER_VERTICAL)
 				{
 					d--;
 					skipSprint = false;
@@ -108,9 +108,9 @@ int main(void)
 		//down
 		if (GetAsyncKeyState(S_KEY) & 0x8000)
 		{
-			if (collisionTracker[d][r - 1] != WALL_CHARACTER_VERTICAL)
+			if (d < SPACES_TO_REACH_BOTTOM)
 			{
-				if (d < SPACES_TO_REACH_BOTTOM)
+				if (collisionTracker[d][r - 1] != WALL_CHARACTER_VERTICAL)
 				{
 					d++;
 					skipSprint = false;
@@ -120,9 +120,9 @@ int main(void)
 		//left
 		if (GetAsyncKeyState(A_KEY) & 0x8000)
 		{
-			if (collisionTracker[d - 1][r - 2] != WALL_CHARACTER_VERTICAL)
+			if (r > 1)
 			{
-				if (r > 1)
+				if (collisionTracker[d - 1][r - 2] != WALL_CHARACTER_VERTICAL)
 				{
 					r--;
 					skipSprint = false;
@@ -132,9 +132,9 @@ int main(void)
 		//right
 		if (GetAsyncKeyState(D_KEY) & 0x8000)
 		{
-			if (collisionTracker[d - 1][r] != WALL_CHARACTER_VERTICAL)
+			if (r <= SPACES_TO_REACH_RIGHT)
 			{
-				if (r <= SPACES_TO_REACH_RIGHT)
+				if (collisionTracker[d - 1][r] != WALL_CHARACTER_VERTICAL)
 				{
 					r++;
 					skipSprint = false;
