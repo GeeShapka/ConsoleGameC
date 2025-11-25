@@ -1,6 +1,5 @@
-add a collision map file for each map.
-	import from the collision map for the collision tracker so i can support collision for any characters on
-	the main map by using only one character type on the Collision map.
+SWAP COLLISION DETECTION AND MAX X/Y DETECTION TO PREVENT OOB MEMORY ACCESS
+
 add a splash screen
 add key to press to display controls
 add an exit screen
